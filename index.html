@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
+        /* [Tout le CSS reste exactement identique à l'original] */
         /* Variables et reset */
         :root {
             --primary-blue: #87CEEB;
@@ -1583,17 +1584,6 @@
         let cart = JSON.parse(localStorage.getItem('meatme_cart')) || [];
 
         // DOM Elements
-        const adminPanel = document.getElementById('adminPanel');
-        const adminToggle = document.getElementById('adminToggle');
-        const closeAdmin = document.getElementById('closeAdmin');
-        const refreshOrders = document.getElementById('refreshOrders');
-        const ordersGrid = document.getElementById('ordersGrid');
-        const totalOrders = document.getElementById('totalOrders');
-        const pendingOrders = document.getElementById('pendingOrders');
-        const completedOrders = document.getElementById('completedOrders');
-        const todayOrders = document.getElementById('todayOrders');
-
-        // Cart functionality
         const cartIcon = document.getElementById('cartIcon');
         const cartSidebar = document.getElementById('cartSidebar');
         const closeCart = document.getElementById('closeCart');
@@ -1607,8 +1597,6 @@
         // Initialize the application
         function init() {
             updateCart();
-            updateAdminStats();
-            renderOrders();
             
             // Particles.js Configuration
             particlesJS("particles-js", {
@@ -1651,11 +1639,6 @@
 
         // Set up all event listeners
         function setupEventListeners() {
-            // Admin panel
-            adminToggle.addEventListener('click', toggleAdminPanel);
-            closeAdmin.addEventListener('click', toggleAdminPanel);
-            refreshOrders.addEventListener('click', refreshOrdersData);
-
             // Cart functionality
             cartIcon.addEventListener('click', toggleCart);
             closeCart.addEventListener('click', toggleCart);
@@ -1688,168 +1671,6 @@
             // Scroll effects
             window.addEventListener('scroll', handleScroll);
             document.getElementById('backToTop').addEventListener('click', scrollToTop);
-
-            // Form submission
-            document.getElementById('reservationForm').addEventListener('submit', handleReservation);
-        }
-
-        // Admin Panel Functions
-        function toggleAdminPanel() {
-            adminPanel.classList.toggle('active');
-            if (adminPanel.classList.contains('active')) {
-                updateAdminStats();
-                renderOrders();
-            }
-        }
-
-        function refreshOrdersData() {
-            updateAdminStats();
-            renderOrders();
-            showNotification('Commandes actualisées');
-        }
-
-        function updateAdminStats() {
-            const today = new Date().toDateString();
-            const todayOrdersCount = orders.filter(order => 
-                new Date(order.date).toDateString() === today
-            ).length;
-            
-            const pendingCount = orders.filter(order => 
-                order.status === 'new' || order.status === 'in-progress'
-            ).length;
-            
-            const completedCount = orders.filter(order => 
-                order.status === 'completed'
-            ).length;
-
-            totalOrders.textContent = orders.length;
-            pendingOrders.textContent = pendingCount;
-            completedOrders.textContent = completedCount;
-            todayOrders.textContent = todayOrdersCount;
-        }
-
-        function renderOrders() {
-            ordersGrid.innerHTML = '';
-            
-            if (orders.length === 0) {
-                ordersGrid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
-                        <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
-                        <h3>Aucune commande pour le moment</h3>
-                        <p>Les commandes apparaîtront ici lorsqu'elles seront passées par les clients.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            // Sort orders by date (newest first)
-            const sortedOrders = [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sortedOrders.forEach(order => {
-                const orderElement = createOrderElement(order);
-                ordersGrid.appendChild(orderElement);
-            });
-        }
-
-        function createOrderElement(order) {
-            const orderElement = document.createElement('div');
-            orderElement.className = `order-card ${order.status}`;
-            
-            const statusText = {
-                'new': 'Nouvelle',
-                'in-progress': 'En Cours',
-                'completed': 'Terminée',
-                'cancelled': 'Annulée'
-            };
-            
-            const statusClass = {
-                'new': 'status-new',
-                'in-progress': 'status-in-progress',
-                'completed': 'status-completed',
-                'cancelled': 'status-cancelled'
-            };
-
-            const itemsHTML = order.items.map(item => `
-                <div class="order-item">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-quantity">x${item.quantity}</div>
-                    <div class="item-price">${item.price * item.quantity} DH</div>
-                </div>
-            `).join('');
-
-            orderElement.innerHTML = `
-                <div class="order-header">
-                    <div class="order-id">Commande #${order.id}</div>
-                    <div class="order-status ${statusClass[order.status]}">${statusText[order.status]}</div>
-                </div>
-                
-                <div class="order-customer">
-                    <div class="customer-info">
-                        <div class="customer-name">${order.customer.name}</div>
-                        <div class="customer-phone">${order.customer.phone}</div>
-                        <div class="customer-address">${order.customer.address}</div>
-                    </div>
-                </div>
-                
-                <div class="order-items">
-                    ${itemsHTML}
-                </div>
-                
-                <div class="order-total">
-                    <span>Total:</span>
-                    <span>${order.total} DH</span>
-                </div>
-                
-                <div class="order-actions">
-                    ${order.status === 'new' ? `
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'in-progress')">
-                            <i class="fas fa-play"></i> Commencer
-                        </button>
-                    ` : ''}
-                    
-                    ${order.status === 'in-progress' ? `
-                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus('${order.id}', 'completed')">
-                            <i class="fas fa-check"></i> Terminer
-                        </button>
-                    ` : ''}
-                    
-                    ${order.status !== 'completed' && order.status !== 'cancelled' ? `
-                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('${order.id}', 'cancelled')">
-                            <i class="fas fa-times"></i> Annuler
-                        </button>
-                    ` : ''}
-                    
-                    <button class="btn btn-sm" onclick="viewOrderDetails('${order.id}')">
-                        <i class="fas fa-eye"></i> Détails
-                    </button>
-                </div>
-            `;
-
-            return orderElement;
-        }
-
-        // Order Management Functions
-        function updateOrderStatus(orderId, newStatus) {
-            const orderIndex = orders.findIndex(order => order.id === orderId);
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = newStatus;
-                orders[orderIndex].updatedAt = new Date().toISOString();
-                saveOrders();
-                renderOrders();
-                updateAdminStats();
-                showNotification(`Statut de la commande #${orderId} mis à jour`);
-            }
-        }
-
-        function viewOrderDetails(orderId) {
-            const order = orders.find(order => order.id === orderId);
-            if (order) {
-                alert(`Détails de la commande #${orderId}\n\nClient: ${order.customer.name}\nTéléphone: ${order.customer.phone}\nAdresse: ${order.customer.address}\nNotes: ${order.customer.notes || 'Aucune'}\n\nTotal: ${order.total} DH`);
-            }
-        }
-
-        function saveOrders() {
-            localStorage.setItem('meatme_orders', JSON.stringify(orders));
         }
 
         // Cart Functions
@@ -2010,7 +1831,7 @@
             
             // Add to orders
             orders.push(order);
-            saveOrders();
+            localStorage.setItem('meatme_orders', JSON.stringify(orders));
             
             // Clear cart
             cart = [];
@@ -2026,12 +1847,6 @@
             toggleCart();
             successMessage.classList.add('active');
             overlay.classList.add('active');
-            
-            // Update admin panel if open
-            if (adminPanel.classList.contains('active')) {
-                updateAdminStats();
-                renderOrders();
-            }
             
             showNotification('Nouvelle commande reçue!', 'success');
         }
@@ -2128,13 +1943,6 @@
                 top: 0,
                 behavior: 'smooth'
             });
-        }
-
-        // Form Handling
-        function handleReservation(e) {
-            e.preventDefault();
-            alert('Merci pour votre réservation ! Nous vous contacterons bientôt pour confirmation.');
-            e.target.reset();
         }
 
         // Notification System
