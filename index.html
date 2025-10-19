@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meat Me - Burgers & Cookies Artisanaux | Casablanca</title>
     <meta name="description" content="Découvrez l'expérience ultime des burgers et cookies artisanaux à Casablanca. Fraîcheur, qualité et passion dans chaque bouchée.">
+    <link rel="icon" type="image/x-icon" href="meatmelogo.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -545,6 +546,24 @@
             color: var(--black);
             z-index: 1001;
         }
+
+/* Ajoutez ce style dans la section Header */
+.admin-link {
+    background: var(--dark-blue);
+    color: white !important;
+    padding: 8px 15px !important;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.admin-link:hover {
+    background: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.admin-link:after {
+    display: none;
+}
 
         /* Hero Section */
         .hero {
@@ -1218,6 +1237,8 @@
                 <li><a href="#gallery">Galerie</a></li>
                 <li><a href="#location">Localisation</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Admin</a></li>
+
                 <li>
                     <a href="#" class="cart-icon" id="cartIcon">
                         <i class="fas fa-shopping-cart"></i>
@@ -1819,19 +1840,19 @@
             }
             
             // Create new order
-            const order = {
-                id: generateOrderId(),
-                customer: { name, phone, address, notes },
-                items: [...cart],
-                total: cart.reduce((total, item) => total + (item.price * item.quantity), 0),
-                status: 'new',
-                date: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
+           const order = {
+        id: generateOrderId(),
+        customer: { name, phone, address, notes },
+        items: [...cart],
+        total: cart.reduce((total, item) => total + (item.price * item.quantity), 0),
+        status: 'new',
+        date: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
             
             // Add to orders
-            orders.push(order);
-            localStorage.setItem('meatme_orders', JSON.stringify(orders));
+             orders.push(order);
+    localStorage.setItem('meatme_orders', JSON.stringify(orders));
             
             // Clear cart
             cart = [];
